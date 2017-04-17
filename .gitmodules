@@ -1,3 +1,3 @@
 [submodule "IncludeOS"]
-	path = IncludeOS
+	path = network/IncludeOS
 	url = https://github.com/hioa-cs/IncludeOS
