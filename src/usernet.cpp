@@ -12,9 +12,20 @@ size_t UserNet::transmit_queue_available()
   return 128;
 }
 
-void UserNet::transmit(net::Packet_ptr)
+void UserNet::transmit(net::Packet_ptr packet)
 {
-  printf("transmit\n");
+  assert(transmit_forward_func);
+  transmit_forward_func(std::move(packet));
+}
+void UserNet::feed(net::Packet_ptr packet)
+{
+  // wrap in packet, pass to Link-layer
+  Link::receive( std::move(packet) );
+}
+void UserNet::feed(void* data, size_t len)
+{
+  // wrap in packet, pass to Link-layer
+  feed( recv_packet((uint8_t*) data, len) );
 }
 
 // create new packet from nothing
@@ -42,11 +53,3 @@ std::unique_ptr<net::Packet> UserNet::recv_packet(uint8_t* data, uint16_t size)
 
   return net::Packet_ptr(ptr);
 }
-
-void UserNet::deactivate()
-{
-  std::terminate();
-}
-
-// nothing to do
-void UserNet::move_to_this_cpu() {}

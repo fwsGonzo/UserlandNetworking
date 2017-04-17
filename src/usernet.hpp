@@ -37,16 +37,24 @@ public:
   net::downstream create_physical_downstream()
   { return {this, &UserNet::transmit}; }
 
+  /** the function called from transmit() **/
+  typedef delegate<void(net::Packet_ptr)> forward_t;
+  void set_transmit_forward(forward_t func) {
+    this->transmit_forward_func = func;
+  }
 
-  /** Linklayer input. Hooks into IP-stack bottom, w.DOWNSTREAM data.*/
-  void transmit(net::Packet_ptr pckt);
+  /** packets going out to network **/
+  void transmit(net::Packet_ptr);
+
+  /** packets coming in from network **/
+  void feed(void*, size_t len);
+  void feed(net::Packet_ptr);
 
   /** Space available in the transmit queue, in packets */
   size_t transmit_queue_available() override;
 
-  void deactivate() override;
-
-  void move_to_this_cpu() override;
+  void deactivate() override {};
+  void move_to_this_cpu() override {};
 
   UserNet();
 
@@ -57,5 +65,6 @@ private:
 
   MAC::Addr mac_addr;
 
+  forward_t transmit_forward_func;
   std::unique_ptr<net::Packet> recv_packet(uint8_t*, uint16_t);
 };
