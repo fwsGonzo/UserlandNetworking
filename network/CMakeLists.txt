@@ -43,5 +43,11 @@ set(NET_SOURCES
   #IncludeOS/src/net/http/secure_server.cpp
 )
 
-add_library(network STATIC ${NET_SOURCES})
+set(OS_SOURCES
+    IncludeOS/src/kernel/timers.cpp
+    IncludeOS/src/util/statman.cpp
+  )
+
+add_library(network STATIC ${NET_SOURCES} ${OS_SOURCES})
+
 #target_include_directories(network ${CMAKE_CURRENT_SOURCE_DIR}/IncludeOS/src/api)
