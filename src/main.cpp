@@ -1,25 +1,9 @@
 #include <net/inet4.hpp>
 #include "usernet.hpp"
+#include "network.hpp" // generate_packet
 static char statman_data[8192];
 
-void outgoing(net::Packet_ptr packet)
-{
-  printf("Packet received from network stack (len=%u)\n", packet->size());
-}
-
-struct packet_t
-{
-  uint16_t len;
-  char     data[0];
-};
-
-static packet_t* generate_packet(const uint16_t LEN)
-{
-  auto* data = new char[sizeof(net::Packet) + sizeof(packet_t) + LEN];
-  packet_t* packet = (packet_t*) &data[sizeof(net::Packet)];
-  packet->len = LEN;
-  return packet;
-}
+void outgoing(net::Packet_ptr packet);
 
 int main(void)
 {
@@ -45,4 +29,9 @@ int main(void)
 
   // feed network a raw packet that starts at packet_t::len
   network_driver.feed(&packet->len, packet->len);
+}
+
+void outgoing(net::Packet_ptr packet)
+{
+  printf("Packet received from network stack (len=%u)\n", packet->size());
 }
