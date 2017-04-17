@@ -1,4 +1,5 @@
 #include <net/inet4.hpp>
+#include <statman>
 #include "usernet.hpp"
 #include "network.hpp" // generate_packet
 static char statman_data[8192];
@@ -9,6 +10,9 @@ int main(void)
 {
   // needed for stats
   Statman::init((uintptr_t) statman_data, sizeof(statman_data));
+  // for timer system
+  extern void init_timers();
+  init_timers();
 
   // the network driver
   UserNet network_driver;
@@ -21,14 +25,16 @@ int main(void)
     { 10,  0,  0,  1}, // GW
     {  8,  8,  8,  8}  // DNS
   );
+  network.negotiate_dhcp(10.0, nullptr);
 
   // generate
   auto* packet = generate_packet(1024);
   for (int i = 0; i < 1024; i++) packet->data[i] = i & 0xff;
-  printf("Generate custom packet with len=%u\n", packet->len);
+  printf("Generate custom packet %p with len=%u\n",
+        packet, packet->driver.len);
 
   // feed network a raw packet that starts at packet_t::len
-  network_driver.feed(&packet->len, packet->len);
+  network_driver.feed(packet);
 }
 
 void outgoing(net::Packet_ptr packet)

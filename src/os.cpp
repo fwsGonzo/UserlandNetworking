@@ -14,3 +14,19 @@ void Service::ready() {}
 #include <time.h>
 RTC::timestamp_t RTC::booted_at = time(0);
 RTC::timestamp_t RTC::now() { return time(0); }
+
+#include <kernel/timers.hpp>
+#include <unistd.h>
+static void stop_timers() {
+  printf("Timers stopped\n");
+  std::terminate();
+}
+static void begin_timer(std::chrono::microseconds usec) {
+  printf("Timer started: %lu usec\n", usec.count());
+  usleep(usec.count());
+}
+
+void init_timers()
+{
+  Timers::init(begin_timer, stop_timers);
+}

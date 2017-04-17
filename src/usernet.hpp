@@ -8,7 +8,6 @@
 #include <net/link_layer.hpp>
 #include <net/ethernet/ethernet.hpp>
 #include <delegate>
-#include <statman>
 
 class UserNet : public net::Link_layer<net::Ethernet> {
 public:
@@ -47,7 +46,7 @@ public:
   void transmit(net::Packet_ptr);
 
   /** packets coming in from network **/
-  void feed(void*, size_t len);
+  void feed(void*, net::BufferStore* = nullptr);
   void feed(net::Packet_ptr);
 
   /** Space available in the transmit queue, in packets */
@@ -58,13 +57,11 @@ public:
 
   UserNet();
 
-private:
   struct driver_hdr {
-    uint16_t nada;
+    uint32_t len;
   }__attribute__((packed));
 
+private:
   MAC::Addr mac_addr;
-
   forward_t transmit_forward_func;
-  std::unique_ptr<net::Packet> recv_packet(uint8_t*, uint16_t);
 };
