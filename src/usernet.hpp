@@ -60,7 +60,7 @@ public:
 
 private:
   struct driver_hdr {
-    uint32_t nada;
+    uint16_t nada;
   }__attribute__((packed));
 
   MAC::Addr mac_addr;
