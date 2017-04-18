@@ -69,3 +69,18 @@ void __arch_init()
   Timers::init(begin_timer, stop_timers);
   Timers::ready();
 }
+
+#ifdef __MACH__
+#include <stdlib.h>
+#include <stddef.h>
+#include <gsl/gsl_assert>
+void* memalign(size_t alignment, size_t size) {
+  void* ptr {nullptr};
+  int res = posix_memalign(&ptr, alignment, size);
+  Ensures(res == 0);
+  return ptr;
+}
+void* aligned_alloc(size_t alignment, size_t size) {
+  return memalign(alignment, size);
+}
+#endif
