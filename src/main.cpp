@@ -3,11 +3,11 @@
 #include "network.hpp" // generate_packet
 #include "testsuite.hpp"
 
-void outgoing(net::Packet_ptr packet);
+static void outgoing(net::Packet_ptr packet);
+extern void __arch_init();
 
 int main(void)
 {
-  extern void __arch_init();
   __arch_init();
 
   // the network driver
@@ -30,6 +30,9 @@ int main(void)
 
   // feed network a raw packet that starts at packet_t::len
   network_driver.feed(packet);
+
+  extern void tcp_test1(net::Inet4&, UserNet&);
+  tcp_test1(network, network_driver);
 
   // begin event loop
   OS::event_loop();
