@@ -41,9 +41,9 @@ void UserNet::feed(void* data, net::BufferStore* bufstore)
 // create new packet from nothing
 net::Packet_ptr UserNet::create_packet(int link_offset)
 {
-  auto buffer = bufstore().get_buffer();
-  auto* ptr = (net::Packet*) buffer.addr;
-  printf("Creating packet %p offset=%u\n", ptr, link_offset);
+  auto  buffer = bufstore().get_buffer();
+  auto* ptr    = (net::Packet*) buffer.addr;
+
   new (ptr) net::Packet(
         sizeof(driver_hdr) + link_offset,
         0,
