@@ -24,13 +24,11 @@ RTC::timestamp_t RTC::booted_at = time(0);
 RTC::timestamp_t RTC::now() { return time(0); }
 
 #include <kernel/timers.hpp>
+static void stop_timers() {}
+
 #include <signal.h>
 #include <unistd.h>
 static timer_t timer_id;
-static void stop_timers() {
-  printf("Timers stopped\n");
-}
-
 extern "C" void alarm_handler(int sig)
 {
   (void) sig;

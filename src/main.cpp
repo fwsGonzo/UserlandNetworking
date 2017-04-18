@@ -22,11 +22,6 @@ int main(void)
     {  8,  8,  8,  8}  // DNS
   );
 
-  network.negotiate_dhcp(1.0,
-    [] (bool timeout) {
-      printf("DHCP callback  timeout=%d\n", timeout);
-    });
-
   // generate
   auto* packet = generate_packet(1024);
   for (int i = 0; i < 1024; i++) packet->data[i] = i & 0xff;
