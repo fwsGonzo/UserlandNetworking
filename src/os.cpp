@@ -56,7 +56,7 @@ void __arch_init()
 #endif
   // statman
   static char statman_data[8192];
-  Statman::init((uintptr_t) statman_data, sizeof(statman_data));
+  Statman::get().init((uintptr_t) statman_data, sizeof(statman_data));
   // setup Linux timer (with signal handler)
   struct sigevent sev;
   sev.sigev_notify = SIGEV_SIGNAL;
