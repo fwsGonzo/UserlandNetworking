@@ -31,8 +31,8 @@ int main(void)
   // feed network a raw packet that starts at packet_t::len
   network_driver.feed(packet);
 
-  extern void tcp_test1(net::Inet4&, UserNet&);
-  tcp_test1(network, network_driver);
+  extern void tcp_test1(net::Inet4&);
+  tcp_test1(network);
 
   // begin event loop
   OS::event_loop();

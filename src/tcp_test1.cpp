@@ -2,9 +2,9 @@
 #include "network.hpp" // generate_packet
 #include "usernet.hpp"
 
-typedef delegate<void(net::tcp::Packet&)> callback_t;
+typedef delegate<void(net::tcp::Packet&)> tcp_callback_t;
 
-void make_tcp_packet(net::Packet& pkt, callback_t tcp_callback)
+static void make_tcp_packet(net::Packet& pkt, tcp_callback_t tcp_callback)
 {
   auto* eth_hdr = (net::ethernet::Header*) pkt.data_end();
   eth_hdr->set_dest(MAC::BROADCAST);
@@ -21,8 +21,16 @@ void make_tcp_packet(net::Packet& pkt, callback_t tcp_callback)
   ip4.make_flight_ready();
   pkt.increment_layer_begin(-(int) sizeof(net::ethernet::Header));
 }
+static inline void
+tcp_send_packet(net::Inet4& network, tcp_callback_t tcp_callback)
+{
+  auto  packet = network.create_packet();
+  auto& driver = (UserNet&) network.nic();
+  make_tcp_packet(*packet, tcp_callback);
+  driver.feed(std::move(packet));
+}
 
-void tcp_test1(net::Inet4& network, UserNet& driver)
+void tcp_test1(net::Inet4& network)
 {
   // bind & listen on TCP port 100
   auto& listener = network.tcp().listen(100);
@@ -34,13 +42,10 @@ void tcp_test1(net::Inet4& network, UserNet& driver)
   auto addr = network.ip_addr();
 
   // send some garbage to [NetworkIP]:100
-  auto packet = network.create_packet();
-  make_tcp_packet(*packet,
+  tcp_send_packet(network,
   [addr] (auto& tcp) {
     tcp.set_dst_port(100);
     tcp.set_ip_dst(addr);
     tcp.fill((uint8_t*) "HELLO WORLD!", 13);
   });
-  printf("Packet size: %d\n", packet->size());
-  driver.feed(std::move(packet));
 }
