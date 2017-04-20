@@ -1,4 +1,4 @@
 [submodule "IncludeOS"]
 	path = network/IncludeOS
 	url = https://github.com/fwsGonzo/IncludeOS
-  branch = 64bit
+  branch = dev
