@@ -13,13 +13,14 @@ class UserNet : public net::Link_layer<net::Ethernet> {
 public:
   using Link          = net::Link_layer<net::Ethernet>;
   using Link_protocol = Link::Protocol;
+  static constexpr MAC::Addr MAC_ADDRESS = {1, 2, 3, 4, 5, 6};
 
   const char* driver_name() const override {
     return "UserNet";
   }
 
   const MAC::Addr& mac() const noexcept override
-  { return this->mac_addr; }
+  { return MAC_ADDRESS; }
 
   uint16_t MTU() const noexcept override
   { return 1500; }
@@ -62,6 +63,5 @@ public:
   }__attribute__((packed));
 
 private:
-  MAC::Addr mac_addr;
   forward_t transmit_forward_func;
 };

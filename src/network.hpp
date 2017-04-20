@@ -21,3 +21,13 @@ inline packet_t* generate_packet(const uint16_t LEN)
   packet->driver.len = LEN;
   return packet;
 }
+
+#include <net/inet4>
+extern MAC::Addr const TEST_MAC_ADDRESS;
+
+typedef delegate<void(net::tcp::Packet&)> tcp_callback_t;
+
+extern void
+make_tcp_packet(net::Packet& pkt, tcp_callback_t tcp_callback);
+extern void
+tcp_send_packet(net::Inet4& network, tcp_callback_t tcp_callback);

@@ -1,5 +1,7 @@
 #include "usernet.hpp"
 
+constexpr MAC::Addr UserNet::MAC_ADDRESS;
+
 UserNet::UserNet()
   : Link(Link_protocol{{this, &UserNet::transmit}, mac()},
     256u, 2048 /* 256x half-page buffers */)

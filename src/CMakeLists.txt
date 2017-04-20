@@ -1,6 +1,7 @@
 
 set(SOURCES
     main.cpp
+    network.cpp
     usernet.cpp
     os.cpp
     tcp_test1.cpp

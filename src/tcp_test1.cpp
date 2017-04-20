@@ -2,36 +2,27 @@
 #include "network.hpp" // generate_packet
 #include "usernet.hpp"
 
-typedef delegate<void(net::tcp::Packet&)> tcp_callback_t;
+static struct TestSystem
+{
+  void outgoing_packets(net::Packet_ptr);
+  void outgoing_arp_packet(net::Packet_ptr);
+  void outgoing_tcp_packet(net::tcp::Packet&);
 
-static void make_tcp_packet(net::Packet& pkt, tcp_callback_t tcp_callback)
-{
-  auto* eth_hdr = (net::ethernet::Header*) pkt.data_end();
-  eth_hdr->set_dest(MAC::BROADCAST);
-  eth_hdr->set_src(MAC::EMPTY);
-  eth_hdr->set_type(net::Ethertype::IP4);
-  pkt.increment_layer_begin(sizeof(net::ethernet::Header));
-  /// TCP stuff
-  auto& tcp = (net::tcp::Packet&) pkt;
-  tcp.init();
-  tcp_callback(tcp);
-  tcp.set_checksum(net::TCP::checksum(tcp));
-  /// IP4 stuff
-  auto& ip4 = (net::PacketIP4&) pkt;
-  ip4.make_flight_ready();
-  pkt.increment_layer_begin(-(int) sizeof(net::ethernet::Header));
-}
-static inline void
-tcp_send_packet(net::Inet4& network, tcp_callback_t tcp_callback)
-{
-  auto  packet = network.create_packet();
-  auto& driver = (UserNet&) network.nic();
-  make_tcp_packet(*packet, tcp_callback);
-  driver.feed(std::move(packet));
-}
+  net::Inet4* network;
+  UserNet*    driver;
+  int         stacklevel = 0;
+
+  void init(net::Inet4& netw) {
+    network = &netw;
+    driver  = &(UserNet&) network->nic();
+    driver->set_transmit_forward({this, &TestSystem::outgoing_packets});
+  }
+} test_system;
 
 void tcp_test1(net::Inet4& network)
 {
+  test_system.init(network);
+
   // bind & listen on TCP port 100
   auto& listener = network.tcp().listen(100);
   listener.on_connect(
@@ -44,8 +35,73 @@ void tcp_test1(net::Inet4& network)
   // send some garbage to [NetworkIP]:100
   tcp_send_packet(network,
   [addr] (auto& tcp) {
+    tcp.set_ip_src({10, 0, 0, 1});
     tcp.set_dst_port(100);
     tcp.set_ip_dst(addr);
     tcp.fill((uint8_t*) "HELLO WORLD!", 13);
   });
+}
+
+void TestSystem::outgoing_tcp_packet(net::tcp::Packet& pkt)
+{
+  printf("[TCP] packet: %s\n", pkt.to_string().c_str());
+  if (pkt.isset(net::tcp::ACK)) {
+    tcp_send_packet(*network,
+    [this, &src = pkt] (auto& tcp) {
+      printf("*** Got ACK, sending bogus packet\n");
+      tcp.set_ip_src({10, 0, 0, 1});
+      tcp.set_dst_port(100);
+      tcp.set_ip_dst(src.ip_src());
+      tcp.set_seq(src.seq()+1);
+      tcp.set_flag(net::tcp::SYN);
+      //tcp.set_flag(net::tcp::ACK);
+    });
+  }
+}
+
+#include <net/ip4/packet_arp.hpp>
+
+void TestSystem::outgoing_arp_packet(net::Packet_ptr packet) {
+  auto& res = (net::PacketArp&) *packet;
+  auto src_mac = res.source_mac();
+  auto dst_mac = res.dest_mac();
+  assert (dst_mac == MAC::BROADCAST);
+  auto src_ip = res.source_ip();
+  auto dst_ip = res.dest_ip();
+  assert(dst_ip == net::ip4::Addr(10,0,0,1));
+
+  res.init(TEST_MAC_ADDRESS, dst_ip, src_ip);
+  res.set_dest_mac(src_mac);
+  res.set_opcode(net::Arp::H_reply);
+  // set ethernet stuff
+  packet->increment_layer_begin(- (int)sizeof(net::ethernet::Header));
+  auto* eth = (net::ethernet::Header*) packet->layer_begin();
+  eth->set_dest(eth->src());
+  eth->set_src(TEST_MAC_ADDRESS);
+  // shipit
+  driver->feed(std::move(packet));
+}
+
+void TestSystem::outgoing_packets(net::Packet_ptr pkt)
+{
+  stacklevel++;
+  auto* eth = (net::ethernet::Header*) pkt->layer_begin();
+  printf("[%d] Packet recv type=%hx (len=%u)\n",
+          stacklevel, eth->type(), pkt->size());
+
+  switch(eth->type()) {
+  case net::Ethertype::IP4:
+      assert(eth->dest() == TEST_MAC_ADDRESS);
+      pkt->increment_layer_begin(sizeof(net::ethernet::Header));
+      // convert to TCP (assume they're all TCP in this test)
+      outgoing_tcp_packet((net::tcp::Packet&) *pkt);
+      break;
+  case net::Ethertype::ARP:
+      pkt->increment_layer_begin(sizeof(net::ethernet::Header));
+      outgoing_arp_packet(std::move(pkt));
+      break;
+  default:
+      break;
+  }
+  stacklevel--;
 }
