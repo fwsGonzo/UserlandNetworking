@@ -49,6 +49,7 @@ public:
   /** packets coming in from network **/
   void feed(void*, net::BufferStore* = nullptr);
   void feed(net::Packet_ptr);
+  void write(void* data, int len);
 
   /** Space available in the transmit queue, in packets */
   size_t transmit_queue_available() override;

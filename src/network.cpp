@@ -17,6 +17,7 @@ void make_tcp_packet(net::Packet& pkt, tcp_callback_t tcp_callback)
   /// IP4 stuff
   auto& ip4 = (net::PacketIP4&) pkt;
   ip4.make_flight_ready();
+  printf("[TCP] SEND packet: %s\n", tcp.to_string().c_str());
   pkt.increment_layer_begin(-(int) sizeof(net::ethernet::Header));
 }
 

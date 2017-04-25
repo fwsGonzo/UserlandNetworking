@@ -21,18 +21,11 @@ int main(void)
     { 10,  0,  0,  1}, // GW
     {  8,  8,  8,  8}  // DNS
   );
-
-  // generate
-  auto* packet = generate_packet(1024);
-  for (int i = 0; i < 1024; i++) packet->data[i] = i & 0xff;
-  printf("Generate custom packet %p with len=%u\n",
-        packet, packet->driver.len);
-
-  // feed network a raw packet that starts at packet_t::len
-  network_driver.feed(packet);
+  extern void tap_device(net::Inet4&);
+  tap_device(network);
 
   extern void tcp_test1(net::Inet4&);
-  tcp_test1(network);
+  //tcp_test1(network);
 
   // begin event loop
   OS::event_loop();
@@ -41,4 +34,5 @@ int main(void)
 void outgoing(net::Packet_ptr packet)
 {
   printf("Packet received from network stack (len=%u)\n", packet->size());
+  printf("-> IGNORED\n");
 }
