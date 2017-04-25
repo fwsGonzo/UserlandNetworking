@@ -4,7 +4,9 @@
 #include "usernet.hpp"
 TAP_driver tap0;
 
-void packet_sent(net::Packet_ptr);
+static void packet_sent(net::Packet_ptr);
+static void post_stats(int);
+
 static struct TestSystem
 {
   net::Inet4* network;
@@ -28,13 +30,16 @@ void tap_device(net::Inet4& network)
   listener.on_connect(
     [] (auto conn) {
       printf("New connection received: %s\n", conn->to_string().c_str());
-      conn->on_read(1500,
+      conn->on_read(4096,
       [conn] (auto buf, size_t len)
       {
         //printf("READ: %.*s\n", (int) len, (const char*) buf.get());
         conn->write(buf, len);
       });
     });
+
+  using namespace std::chrono;
+  Timers::periodic(1s, 5s, post_stats);
 
   while (true) {
     Timers::timers_handler();
@@ -47,4 +52,11 @@ void packet_sent(net::Packet_ptr packet)
 {
   //printf("write %d\n", packet->size());
   tap0.write(packet->layer_begin(), packet->size());
+}
+
+void post_stats(int)
+{
+  return;
+  printf("status:\n");
+  printf("%s\n", test_system.network->tcp().to_string().c_str());
 }
