@@ -6,6 +6,7 @@ TAP_driver tap0;
 
 static void packet_sent(net::Packet_ptr);
 static void post_stats(int);
+static void http_server(uint16_t port);
 
 static struct TestSystem
 {
@@ -38,6 +39,8 @@ void tap_device(net::Inet4& network)
       });
     });
 
+  http_server(80);
+
   using namespace std::chrono;
   Timers::periodic(1s, 5s, post_stats);
 
@@ -56,7 +59,28 @@ void packet_sent(net::Packet_ptr packet)
 
 void post_stats(int)
 {
-  return;
-  printf("status:\n");
+  printf("Active timers: %zu\n", Timers::active());
   printf("%s\n", test_system.network->tcp().to_string().c_str());
+}
+
+#include <http>
+void http_server(uint16_t port)
+{
+  using namespace http;
+  static std::unique_ptr<Server> server = std::make_unique<Server>(test_system.network->tcp());
+
+  server->on_request(
+    [] (Request_ptr req, auto writer)
+    {
+      //printf("Received request:\n%s\n", req->to_string().c_str());
+      (void) req;
+      // set content type
+      writer->header().set_field(header::Content_Type, "image/jpeg");
+      // write body
+      static const int MB = 160*1024*1024;
+      auto buf = std::unique_ptr<uint8_t[]> (new uint8_t[MB]);
+      writer->write(std::move(buf), MB);
+    });
+
+  server->listen(port);
 }

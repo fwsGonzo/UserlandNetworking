@@ -46,8 +46,19 @@ set(NET_SOURCES
 set(OS_SOURCES
     IncludeOS/src/kernel/timers.cpp
     IncludeOS/src/util/statman.cpp
+    IncludeOS/src/util/percent_encoding.cpp
+    IncludeOS/src/util/uri.cpp
   )
 
-add_library(network STATIC ${NET_SOURCES} ${OS_SOURCES})
+set(MOD_SOURCES
+    IncludeOS/lib/mana/src/server.cpp
+    IncludeOS/lib/mana/src/request.cpp
+    IncludeOS/lib/mana/src/response.cpp
+  )
 
-#target_include_directories(network ${CMAKE_CURRENT_SOURCE_DIR}/IncludeOS/src/api)
+add_library(network STATIC ${NET_SOURCES} ${OS_SOURCES} ${MOD_SOURCES})
+target_include_directories(network PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/IncludeOS/lib/mana/include)
+
+add_library(http_parser STATIC "IncludeOS/mod/http-parser/http_parser.c")
+set_target_properties(http_parser PROPERTIES LINKER_LANGUAGE C)

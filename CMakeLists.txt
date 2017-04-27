@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.1)
+cmake_minimum_required (VERSION 3.0.2)
 project (userland_tests C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -16,3 +16,4 @@ add_subdirectory(network)
 add_subdirectory(src)
 
 add_dependencies(testsuite network)
+add_dependencies(testsuite http_parser)
