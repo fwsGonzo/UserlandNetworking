@@ -2,29 +2,21 @@
 #include <kernel/timers.hpp>
 #include "tap_driver.hpp"
 #include "usernet.hpp"
-TAP_driver tap0;
+#include "http.hpp"
 
 static void packet_sent(net::Packet_ptr);
-static void post_stats(int);
-static void http_server(uint16_t port);
-
-static struct TestSystem
-{
-  net::Inet4* network;
-  UserNet*    driver;
-
-  void init(net::Inet4& netw) {
-    network = &netw;
-    driver  = &(UserNet&) network->nic();
-    driver->set_transmit_forward(packet_sent);
-  }
-} test_system;
+static TAP_driver* current_tap_device = nullptr;
 
 // run network stack against Linux Tap device (virtual interface)
 void tap_device(net::Inet4& network)
 {
-  test_system.init(network);
-  tap0.on_read({test_system.driver, &UserNet::write});
+  // set outgoing packet function on UserNet driver
+  auto& driver = (UserNet&) network.nic();
+  driver.set_transmit_forward(packet_sent);
+  // create TAP device and hook up packet receive to UserNet driver
+  TAP_driver tap0;
+  tap0.on_read({driver, &UserNet::write});
+  current_tap_device = &tap0;
 
   // bind & listen on TCP ECHO port 7
   auto& listener = network.tcp().listen(7);
@@ -39,10 +31,14 @@ void tap_device(net::Inet4& network)
       });
     });
 
-  http_server(80);
+  http_server(network, 80);
 
   using namespace std::chrono;
-  Timers::periodic(1s, 5s, post_stats);
+  Timers::periodic(1s, 5s,
+    [&network] (int) {
+      printf("Active timers: %zu\n", Timers::active());
+      printf("%s\n", network.tcp().to_string().c_str());
+    });
 
   while (true) {
     Timers::timers_handler();
@@ -54,33 +50,5 @@ void tap_device(net::Inet4& network)
 void packet_sent(net::Packet_ptr packet)
 {
   //printf("write %d\n", packet->size());
-  tap0.write(packet->layer_begin(), packet->size());
-}
-
-void post_stats(int)
-{
-  printf("Active timers: %zu\n", Timers::active());
-  printf("%s\n", test_system.network->tcp().to_string().c_str());
-}
-
-#include <http>
-void http_server(uint16_t port)
-{
-  using namespace http;
-  static std::unique_ptr<Server> server = std::make_unique<Server>(test_system.network->tcp());
-
-  server->on_request(
-    [] (Request_ptr req, auto writer)
-    {
-      //printf("Received request:\n%s\n", req->to_string().c_str());
-      (void) req;
-      // set content type
-      writer->header().set_field(header::Content_Type, "image/jpeg");
-      // write body
-      static const int MB = 160*1024*1024;
-      auto buf = std::unique_ptr<uint8_t[]> (new uint8_t[MB]);
-      writer->write(std::move(buf), MB);
-    });
-
-  server->listen(port);
+  current_tap_device->write(packet->layer_begin(), packet->size());
 }

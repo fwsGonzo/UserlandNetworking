@@ -1,29 +1,14 @@
 #include <net/inet4.hpp>
-#include "network.hpp" // generate_packet
-#include "usernet.hpp"
+#include "test_system.hpp"
 
-static struct TestSystem
-{
-  void outgoing_packets(net::Packet_ptr);
-  void outgoing_arp_packet(net::Packet_ptr);
-  void outgoing_tcp_packet(net::tcp::Packet&);
-
-  net::Inet4* network;
-  UserNet*    driver;
-  int         stacklevel = 0;
-
-  void init(net::Inet4& netw) {
-    network = &netw;
-    driver  = &(UserNet&) network->nic();
-    driver->set_transmit_forward({this, &TestSystem::outgoing_packets});
-  }
-} test_system;
+static void outgoing_packets(net::Inet4&, net::Packet_ptr);
+static void outgoing_arp_packet(net::Inet4&, net::Packet_ptr);
+static void outgoing_tcp_packet(net::Inet4&, net::tcp::Packet&);
 
 /// begin test ///
 void tcp_test1(net::Inet4& network)
 {
-  assert(0);
-  test_system.init(network);
+  test_system.init(network, outgoing_packets);
 
   // bind & listen on TCP port 100
   auto& listener = network.tcp().listen(100);
@@ -45,14 +30,14 @@ void tcp_test1(net::Inet4& network)
   });
 }
 
-void TestSystem::outgoing_tcp_packet(net::tcp::Packet& pkt)
+void outgoing_tcp_packet(net::Inet4& network, net::tcp::Packet& pkt)
 {
   printf("[TCP] packet: %s\n", pkt.to_string().c_str());
   printf("RESET: %d\n", pkt.isset(net::tcp::RST));
   assert(0);
   if (pkt.isset(net::tcp::ACK)) {
-    tcp_send_packet(*network,
-    [this, &src = pkt] (auto& tcp) {
+    tcp_send_packet(network,
+    [&src = pkt] (auto& tcp) {
       printf("*** Got ACK, sending bogus packet\n");
       tcp.set_ip_src({10, 0, 0, 1});
       tcp.set_dst_port(100);
@@ -66,7 +51,7 @@ void TestSystem::outgoing_tcp_packet(net::tcp::Packet& pkt)
 
 #include <net/ip4/packet_arp.hpp>
 
-void TestSystem::outgoing_arp_packet(net::Packet_ptr packet) {
+void outgoing_arp_packet(net::Inet4& network, net::Packet_ptr packet) {
   auto& res = (net::PacketArp&) *packet;
   auto src_mac = res.source_mac();
   auto dst_mac = res.dest_mac();
@@ -84,31 +69,27 @@ void TestSystem::outgoing_arp_packet(net::Packet_ptr packet) {
   eth->set_dest(eth->src());
   eth->set_src(TEST_MAC_ADDRESS);
   // shipit
-  driver->feed(std::move(packet));
+  get_driver(network).feed(std::move(packet));
 }
 
-void TestSystem::outgoing_packets(net::Packet_ptr pkt)
+void outgoing_packets(net::Inet4& network, net::Packet_ptr pkt)
 {
-  stacklevel++;
-  if (stacklevel > 1000) return;
-
   auto* eth = (net::ethernet::Header*) pkt->layer_begin();
-  printf("[%d] Packet recv type=%hx (len=%u)\n",
-          stacklevel, eth->type(), pkt->size());
+  printf("*** Packet recv type=%hx (len=%u)\n",
+          eth->type(), pkt->size());
 
   switch(eth->type()) {
   case net::Ethertype::IP4:
       assert(eth->dest() == TEST_MAC_ADDRESS);
       pkt->increment_layer_begin(sizeof(net::ethernet::Header));
       // convert to TCP (assume they're all TCP in this test)
-      outgoing_tcp_packet((net::tcp::Packet&) *pkt);
+      outgoing_tcp_packet(network, (net::tcp::Packet&) *pkt);
       break;
   case net::Ethertype::ARP:
       pkt->increment_layer_begin(sizeof(net::ethernet::Header));
-      outgoing_arp_packet(std::move(pkt));
+      outgoing_arp_packet(network, std::move(pkt));
       break;
   default:
       break;
   }
-  stacklevel--;
 }

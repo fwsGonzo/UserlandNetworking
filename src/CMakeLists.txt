@@ -1,12 +1,16 @@
 
 set(SOURCES
     main.cpp
+    os.cpp
     network.cpp
     usernet.cpp
-    os.cpp
-    tcp_test1.cpp
     tap_driver.cpp
+    test_system.cpp
+    http.cpp
+
+    tcp_test1.cpp
     tap_device.cpp
+    random_fuzzing.cpp
   )
 
 add_executable(testsuite ${SOURCES})

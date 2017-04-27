@@ -1,8 +1,16 @@
 /**
- *
+ * Stuff
 **/
 #pragma once
 #include "usernet.hpp"
+#include <net/inet4>
+
+inline UserNet& get_driver(net::Inet4& netw) {
+  return (UserNet&) netw.nic();
+}
+inline UserNet& get_driver(net::Inet4* netw) {
+  return (UserNet&) netw->nic();
+}
 
 struct packet_t
 {
@@ -22,7 +30,6 @@ inline packet_t* generate_packet(const uint16_t LEN)
   return packet;
 }
 
-#include <net/inet4>
 extern MAC::Addr const TEST_MAC_ADDRESS;
 
 typedef delegate<void(net::tcp::Packet&)> tcp_callback_t;
