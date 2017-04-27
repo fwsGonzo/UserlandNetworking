@@ -4,7 +4,7 @@ project (userland_tests C CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GTK_CFLAGS} -g -Wall -Wextra")
 
-add_definitions(-DARCH_X64 -DOS_TERMINATE_ON_CONTRACT_VIOLATION)
+add_definitions(-DARCH_x86_64 -DOS_TERMINATE_ON_CONTRACT_VIOLATION)
 
 include_directories(network/IncludeOS/api)
 include_directories(network/IncludeOS/mod)
