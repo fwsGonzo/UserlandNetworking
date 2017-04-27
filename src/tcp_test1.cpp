@@ -19,8 +19,10 @@ static struct TestSystem
   }
 } test_system;
 
+/// begin test ///
 void tcp_test1(net::Inet4& network)
 {
+  assert(0);
   test_system.init(network);
 
   // bind & listen on TCP port 100
@@ -32,19 +34,22 @@ void tcp_test1(net::Inet4& network)
   // ip address of stack
   auto addr = network.ip_addr();
 
-  // send some garbage to [NetworkIP]:100
+  // send first packet to [Network] port 100
   tcp_send_packet(network,
   [addr] (auto& tcp) {
+    tcp.set_src_port(1);
     tcp.set_ip_src({10, 0, 0, 1});
     tcp.set_dst_port(100);
     tcp.set_ip_dst(addr);
-    tcp.fill((uint8_t*) "HELLO WORLD!", 13);
+    tcp.set_flag(net::tcp::SYN);
   });
 }
 
 void TestSystem::outgoing_tcp_packet(net::tcp::Packet& pkt)
 {
   printf("[TCP] packet: %s\n", pkt.to_string().c_str());
+  printf("RESET: %d\n", pkt.isset(net::tcp::RST));
+  assert(0);
   if (pkt.isset(net::tcp::ACK)) {
     tcp_send_packet(*network,
     [this, &src = pkt] (auto& tcp) {
@@ -85,6 +90,8 @@ void TestSystem::outgoing_arp_packet(net::Packet_ptr packet) {
 void TestSystem::outgoing_packets(net::Packet_ptr pkt)
 {
   stacklevel++;
+  if (stacklevel > 1000) return;
+
   auto* eth = (net::ethernet::Header*) pkt->layer_begin();
   printf("[%d] Packet recv type=%hx (len=%u)\n",
           stacklevel, eth->type(), pkt->size());
