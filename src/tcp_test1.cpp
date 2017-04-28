@@ -32,7 +32,7 @@ void tcp_test1(net::Inet4& network)
 
 void outgoing_tcp_packet(net::Inet4& network, net::tcp::Packet& pkt)
 {
-  printf("[TCP] packet: %s\n", pkt.to_string().c_str());
+  printf("[TCP] RECV packet: %s\n", pkt.to_string().c_str());
   printf("RESET: %d\n", pkt.isset(net::tcp::RST));
   assert(0);
   if (pkt.isset(net::tcp::ACK)) {
@@ -47,29 +47,6 @@ void outgoing_tcp_packet(net::Inet4& network, net::tcp::Packet& pkt)
       //tcp.set_flag(net::tcp::ACK);
     });
   }
-}
-
-#include <net/ip4/packet_arp.hpp>
-
-void outgoing_arp_packet(net::Inet4& network, net::Packet_ptr packet) {
-  auto& res = (net::PacketArp&) *packet;
-  auto src_mac = res.source_mac();
-  auto dst_mac = res.dest_mac();
-  assert (dst_mac == MAC::BROADCAST);
-  auto src_ip = res.source_ip();
-  auto dst_ip = res.dest_ip();
-  assert(dst_ip == net::ip4::Addr(10,0,0,1));
-
-  res.init(TEST_MAC_ADDRESS, dst_ip, src_ip);
-  res.set_dest_mac(src_mac);
-  res.set_opcode(net::Arp::H_reply);
-  // set ethernet stuff
-  packet->increment_layer_begin(- (int)sizeof(net::ethernet::Header));
-  auto* eth = (net::ethernet::Header*) packet->layer_begin();
-  eth->set_dest(eth->src());
-  eth->set_src(TEST_MAC_ADDRESS);
-  // shipit
-  get_driver(network).feed(std::move(packet));
 }
 
 void outgoing_packets(net::Inet4& network, net::Packet_ptr pkt)
@@ -87,7 +64,7 @@ void outgoing_packets(net::Inet4& network, net::Packet_ptr pkt)
       break;
   case net::Ethertype::ARP:
       pkt->increment_layer_begin(sizeof(net::ethernet::Header));
-      outgoing_arp_packet(network, std::move(pkt));
+      simulate_arp_response(network, std::move(pkt));
       break;
   default:
       break;

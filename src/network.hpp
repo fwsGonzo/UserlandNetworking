@@ -38,3 +38,6 @@ extern void
 make_tcp_packet(net::Packet& pkt, tcp_callback_t tcp_callback);
 extern void
 tcp_send_packet(net::Inet4& network, tcp_callback_t tcp_callback);
+
+extern void
+simulate_arp_response(net::Inet4& network, net::Packet_ptr packet);
