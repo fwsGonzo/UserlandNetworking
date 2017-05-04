@@ -1,6 +1,6 @@
 #pragma once
 #include "network.hpp" // generate_packet
-#include "usernet.hpp"
+#include "drivers/usernet.hpp"
 
 struct TestSystem
 {

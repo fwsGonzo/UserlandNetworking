@@ -1,5 +1,4 @@
 #include <net/inet4.hpp>
-#include "usernet.hpp"
 #include "network.hpp" // generate_packet
 #include "testsuite.hpp"
 
@@ -21,11 +20,11 @@ int main(void)
     { 10,  0,  0,  1}, // GW
     {  8,  8,  8,  8}  // DNS
   );
-  //extern void tap_device(net::Inet4&);
-  //tap_device(network);
+  extern void tap_device(net::Inet4&);
+  tap_device(network);
 
   extern void random_fuzzing(net::Inet4&);
-  random_fuzzing(network);
+  //random_fuzzing(network);
 
   extern void tcp_test1(net::Inet4&);
   //tcp_test1(network);

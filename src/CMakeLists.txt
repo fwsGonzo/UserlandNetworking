@@ -3,8 +3,8 @@ set(SOURCES
     main.cpp
     os.cpp
     network.cpp
-    usernet.cpp
-    tap_driver.cpp
+    drivers/usernet.cpp
+    drivers/tap_driver.cpp
     test_system.cpp
     http.cpp
 

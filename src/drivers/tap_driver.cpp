@@ -6,6 +6,7 @@
 #include <linux/if_tun.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -15,7 +16,7 @@ static bool debug = true;
 
 static int run_cmd(const char *cmd, ...)
 {
-  static const int CMDBUFLEN = 256;
+  static const int CMDBUFLEN = 512;
 
   va_list ap;
   char buf[CMDBUFLEN];
@@ -30,30 +31,31 @@ static int run_cmd(const char *cmd, ...)
   return system(buf);
 }
 
-int TAP_driver::set_if_route(char *dev, const char *cidr)
+int TAP_driver::set_if_route(const char *cidr)
 {
-  return run_cmd("ip route add dev %s %s", dev, cidr);
+  return run_cmd("ip route add dev %s %s", dev.c_str(), cidr);
 }
 
-int TAP_driver::set_if_address(char *dev, const char* ip)
+int TAP_driver::set_if_address(const char* ip)
 {
-  return run_cmd("ip address add dev %s local %s", dev, ip);
+  return run_cmd("ip address add dev %s local %s", dev.c_str(), ip);
 }
 
-int TAP_driver::set_if_up(char *dev)
+int TAP_driver::set_if_up()
 {
-  return run_cmd("ip link set dev %s up", dev);
+  return run_cmd("ip link set dev %s up", dev.c_str());
 }
 
 /*
  * Taken from Kernel Documentation/networking/tuntap.txt
  */
-int TAP_driver::alloc_tun(char *dev)
+int TAP_driver::alloc_tun()
 {
+  assert(!this->dev.empty());
   struct ifreq ifr;
   int fd, err;
 
-  if( (fd = open("/dev/net/tap", O_RDWR)) < 0 ) {
+  if ((fd = open("/dev/net/tap", O_RDWR)) < 0) {
       perror("Cannot open TUN/TAP dev\n"
                   "Make sure one exists with "
                   "'$ mknod /dev/net/tap c 10 200'");
@@ -67,17 +69,15 @@ int TAP_driver::alloc_tun(char *dev)
    */
   memset(&ifr, 0, sizeof(ifr));
   ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-  if( *dev ) {
-      strncpy(ifr.ifr_name, dev, IFNAMSIZ);
-  }
+  strncpy(ifr.ifr_name, dev.c_str(), IFNAMSIZ);
 
-  if( (err = ioctl(fd, (int) TUNSETIFF, (void *) &ifr)) < 0 ){
+  if ((err = ioctl(fd, (int) TUNSETIFF, (void *) &ifr)) < 0) {
       perror("ERR: Could not ioctl tun");
       close(fd);
       return err;
   }
 
-  strcpy(dev, ifr.ifr_name);
+  dev = std::string(ifr.ifr_name);
   return fd;
 }
 
@@ -93,25 +93,25 @@ int TAP_driver::write(const void* buf, int len)
 
 TAP_driver::TAP_driver()
 {
-  this->dev = new char[16];
-  this->tun_fd = alloc_tun(dev);
+  this->dev = "tap1";
+  this->tun_fd = alloc_tun();
 
-  if (set_if_up(dev) != 0) {
+  if (set_if_up() != 0) {
       printf("ERROR when setting up if\n");
   }
 
-  if (set_if_route(dev) != 0) {
+  if (set_if_route() != 0) {
       printf("ERROR when setting route for if\n");
   }
 
-  if (set_if_address(dev) != 0) {
+  if (set_if_address() != 0) {
       printf("ERROR when setting addr for if\n");
   }
 }
 
 TAP_driver::~TAP_driver()
 {
-  delete dev;
+  close (tun_fd);
 }
 
 void TAP_driver::wait()

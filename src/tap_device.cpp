@@ -1,7 +1,7 @@
 #include <net/inet4.hpp>
 #include <kernel/timers.hpp>
-#include "tap_driver.hpp"
-#include "usernet.hpp"
+#include "drivers/tap_driver.hpp"
+#include "drivers/usernet.hpp"
 #include "http.hpp"
 
 static void packet_sent(net::Packet_ptr);

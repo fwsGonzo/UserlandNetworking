@@ -33,8 +33,6 @@ void tcp_test1(net::Inet4& network)
 void outgoing_tcp_packet(net::Inet4& network, net::tcp::Packet& pkt)
 {
   printf("[TCP] RECV packet: %s\n", pkt.to_string().c_str());
-  printf("RESET: %d\n", pkt.isset(net::tcp::RST));
-  assert(0);
   if (pkt.isset(net::tcp::ACK)) {
     tcp_send_packet(network,
     [&src = pkt] (auto& tcp) {

@@ -1,5 +1,6 @@
 #pragma once
 #include <delegate>
+#include <string>
 
 struct TAP_driver
 {
@@ -14,12 +15,12 @@ struct TAP_driver
   ~TAP_driver();
 
 private:
-  int set_if_route(char *dev, const char* cidr = "10.0.0.0/24");
-  int set_if_address(char *dev, const char* ip = "10.0.0.1");
-  int set_if_up(char *dev);
-  int alloc_tun(char *dev);
+  int set_if_route(const char* cidr = "10.0.0.0/24");
+  int set_if_address(const char* ip = "10.0.0.1");
+  int set_if_up();
+  int alloc_tun();
 
+  int tun_fd;
   on_read_func o_read;
-  int   tun_fd;
-  char* dev;
+  std::string  dev;
 };
