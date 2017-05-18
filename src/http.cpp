@@ -13,6 +13,7 @@ void http_server(net::Inet4& network, uint16_t port)
       (void) req;
       // set content type
       writer->header().set_field(header::Content_Type, "image/jpeg");
+
       // write body
       static const int MB = 160*1024*1024;
       auto buf = std::unique_ptr<uint8_t[]> (new uint8_t[MB]);

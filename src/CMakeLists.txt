@@ -7,6 +7,7 @@ set(SOURCES
     drivers/tap_driver.cpp
     test_system.cpp
     http.cpp
+    websocket.cpp
 
     tcp_test1.cpp
     tap_device.cpp

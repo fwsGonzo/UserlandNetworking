@@ -45,6 +45,7 @@ set(NET_SOURCES
 
 set(OS_SOURCES
     IncludeOS/src/kernel/timers.cpp
+    IncludeOS/src/util/sha1.cpp
     IncludeOS/src/util/statman.cpp
     IncludeOS/src/util/percent_encoding.cpp
     IncludeOS/src/util/uri.cpp
