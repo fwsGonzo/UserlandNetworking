@@ -2,7 +2,6 @@
 #include "test_system.hpp"
 
 static void outgoing_packets(net::Inet4&, net::Packet_ptr);
-static void outgoing_arp_packet(net::Inet4&, net::Packet_ptr);
 static void outgoing_tcp_packet(net::Inet4&, net::tcp::Packet&);
 
 /// begin test ///
