@@ -39,7 +39,7 @@ void UserNet::feed(void* data, net::BufferStore* bufstore)
 
   Link::receive(net::Packet_ptr(ptr));
 }
-void UserNet::write(void* data, int len)
+void UserNet::write(const void* data, int len)
 {
   assert(len >= 0);
   auto buffer = bufstore().get_buffer();

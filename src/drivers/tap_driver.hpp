@@ -4,7 +4,7 @@
 
 struct TAP_driver
 {
-  typedef delegate<void(void*, int)> on_read_func;
+  typedef delegate<void(const void*, int)> on_read_func;
   void on_read(on_read_func func) { o_read = func; }
   void wait();
 

@@ -11,6 +11,7 @@ set(SOURCES
 
     tcp_test1.cpp
     tap_device.cpp
+    stdin_device.cpp
     random_fuzzing.cpp
   )
 

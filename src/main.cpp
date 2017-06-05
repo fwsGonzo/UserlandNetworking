@@ -20,8 +20,13 @@ int main(void)
     { 10,  0,  0,  1}, // GW
     {  8,  8,  8,  8}  // DNS
   );
+  // TAP device
   extern void tap_device(net::Inet4&);
-  tap_device(network);
+  //tap_device(network);
+
+  // AFL (or other) on stdin
+  extern void stdin_device(net::Inet4&);
+  stdin_device(network);
 
   extern void random_fuzzing(net::Inet4&);
   //random_fuzzing(network);

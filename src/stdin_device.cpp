@@ -1,8 +1,9 @@
 #include <net/inet4.hpp>
 #include <kernel/timers.hpp>
-#include <unistd.h>
-#include "usernet.hpp"
+#include "drivers/usernet.hpp"
 #include "http.hpp"
+#include <unistd.h>
+#include <iostream>
 
 static void packet_sent(net::Packet_ptr);
 
@@ -35,23 +36,22 @@ void stdin_device(net::Inet4& network)
       printf("%s\n", network.tcp().to_string().c_str());
     });
 
-  while (__AFL_LOOP(1000)) {
-    int n = 0;
-    if (ioctl(stdin, I_NREAD, &n) == 0) {
-      if (n > 0) {
-        
-      } else {
-        printf("empty buffer?\n");
-      }
-    }
+  do {
+    // read data from stdin
+    std::string stdin;
+    std::cin >> stdin;
+    // pass data to network
+    driver.write(stdin.data(), stdin.size());
+
+    // handle timers n shit
     Timers::timers_handler();
-    pause();
-  }
+    //pause();
+  } while(0);
 }
 
 // send packet to Linux
 void packet_sent(net::Packet_ptr packet)
 {
-  //printf("write %d\n", packet->size());
-  write(stdout, packet->layer_begin(), packet->size());
+  printf("write %d\n", packet->size());
+  write(0, packet->layer_begin(), packet->size());
 }
