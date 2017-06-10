@@ -9,6 +9,8 @@ set(SOURCES
     http.cpp
     websocket.cpp
 
+    fuzz_ip4.cpp
+
     tcp_test1.cpp
     tap_device.cpp
     stdin_device.cpp

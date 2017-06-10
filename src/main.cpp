@@ -22,11 +22,11 @@ int main(void)
   );
   // TAP device
   extern void tap_device(net::Inet4&);
-  //tap_device(network);
+  tap_device(network);
 
   // AFL (or other) on stdin
   extern void stdin_device(net::Inet4&);
-  stdin_device(network);
+  //stdin_device(network);
 
   extern void random_fuzzing(net::Inet4&);
   //random_fuzzing(network);

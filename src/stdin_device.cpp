@@ -5,7 +5,8 @@
 #include <unistd.h>
 #include <iostream>
 
-static void packet_sent(net::Packet_ptr);
+extern void fuzz_ip4(net::Inet4&, const void*, uint16_t len);
+static void packet_sent(net::Packet_ptr packet);
 
 // run network stack against Linux Tap device (virtual interface)
 void stdin_device(net::Inet4& network)
@@ -41,8 +42,10 @@ void stdin_device(net::Inet4& network)
     // read data from stdin
     std::string stdin;
     std::cin >> stdin;
+    // pass data to IP4 fuzzer
+    fuzz_ip4(network, stdin.data(), stdin.size());
     // pass data to network
-    driver.write(stdin.data(), stdin.size());
+    //driver.write(stdin.data(), stdin.size());
 
     // handle timers n shit
     Timers::timers_handler();
