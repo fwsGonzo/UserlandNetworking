@@ -36,7 +36,8 @@ void stdin_device(net::Inet4& network)
       printf("%s\n", network.tcp().to_string().c_str());
     });
 
-  do {
+  while (!std::cin.eof())
+  {
     // read data from stdin
     std::string stdin;
     std::cin >> stdin;
@@ -46,7 +47,7 @@ void stdin_device(net::Inet4& network)
     // handle timers n shit
     Timers::timers_handler();
     //pause();
-  } while(0);
+  };
 }
 
 // send packet to Linux
