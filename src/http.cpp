@@ -16,7 +16,7 @@ void http_server(net::Inet4& network, uint16_t port)
 
       // write body
       static const int MB = 160*1024*1024;
-      auto buf = std::shared_ptr<uint8_t> (new uint8_t[MB]);
+      auto buf = std::shared_ptr<uint8_t> (new uint8_t[MB], std::default_delete<uint8_t[]> ());
       writer->write(std::move(buf), MB);
     });
 
