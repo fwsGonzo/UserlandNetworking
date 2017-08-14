@@ -45,9 +45,20 @@ set(NET_SOURCES
 )
 
 set(OS_SOURCES
+    IncludeOS/src/fs/dirent.cpp
+    IncludeOS/src/fs/disk.cpp
+    IncludeOS/src/fs/fat.cpp
+    IncludeOS/src/fs/fat_sync.cpp
+    IncludeOS/src/fs/fat_async.cpp
+    IncludeOS/src/fs/filesystem.cpp
+    IncludeOS/src/fs/mbr.cpp
+    IncludeOS/src/fs/path.cpp
     IncludeOS/src/kernel/timers.cpp
+    IncludeOS/src/util/async.cpp
+    IncludeOS/src/util/logger.cpp
     IncludeOS/src/util/sha1.cpp
     IncludeOS/src/util/statman.cpp
+    IncludeOS/src/util/path_to_regex.cpp
     IncludeOS/src/util/percent_encoding.cpp
     IncludeOS/src/util/uri.cpp
   )

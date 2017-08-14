@@ -5,9 +5,11 @@ set(SOURCES
     network.cpp
     drivers/usernet.cpp
     drivers/tap_driver.cpp
+    drivers/memdisk.cpp
     test_system.cpp
     http.cpp
     websocket.cpp
+    acorn.cpp
 
     fuzz_ip4.cpp
 
@@ -20,6 +22,9 @@ set(SOURCES
 add_executable(testsuite ${SOURCES})
 add_dependencies(testsuite network)
 target_link_libraries(testsuite network http_parser rt)
+target_include_directories(testsuite PUBLIC acorn)
 target_include_directories(testsuite PUBLIC ../libviface/include)
+target_include_directories(testsuite PUBLIC ../network/IncludeOS/examples/acorn/app)
+target_include_directories(testsuite PUBLIC ../network/IncludeOS/lib/mana/include)
 
 set_target_properties(testsuite PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

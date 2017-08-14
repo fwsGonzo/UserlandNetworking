@@ -26,13 +26,16 @@ int main(void)
 
   // AFL (or other) on stdin
   extern void stdin_device(net::Inet4&);
-  stdin_device(network);
+  //stdin_device(network);
 
   extern void random_fuzzing(net::Inet4&);
   //random_fuzzing(network);
 
   extern void tcp_test1(net::Inet4&);
   //tcp_test1(network);
+
+  extern void acorn_start();
+  acorn_start();
 
   // begin event loop
   OS::event_loop();

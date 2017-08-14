@@ -8,6 +8,18 @@ int64_t OS::micros_since_boot() noexcept
   return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
 }
 
+std::string OS::version_str_ = "v1.0";
+uintptr_t OS::heap_usage() noexcept {
+  return 0;
+}
+
+#include <kernel/rtc.hpp>
+#include <time.h>
+RTC::timestamp_t RTC::booted_at = time(0);
+RTC::timestamp_t RTC::now() { return time(0); }
+RTC::timestamp_t OS::boot_timestamp() {
+  return RTC::boot_timestamp();
+}
 
 #include <smp>
 int SMP::cpu_id() noexcept {
@@ -20,11 +32,9 @@ void SMP::signal(int) {}
 
 #include <service>
 void Service::ready() {}
-
-#include <kernel/rtc.hpp>
-#include <time.h>
-RTC::timestamp_t RTC::booted_at = time(0);
-RTC::timestamp_t RTC::now() { return time(0); }
+std::string Service::name() {
+  return "Userland Networking";
+}
 
 #include <kernel/timers.hpp>
 static void stop_timers() {}
@@ -108,4 +118,11 @@ void print_backtrace()
       printf("#%02d: %8p %s\n", j, addresses[j], strings[j]);
 
   free(strings);
+}
+
+extern "C"
+void panic(const char* why)
+{
+  printf("!! PANIC !!\nReason: %s\n", why);
+  std::abort();
 }
