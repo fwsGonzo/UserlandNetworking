@@ -37,11 +37,10 @@ void stdin_device(net::Inet4& network)
       printf("%s\n", network.tcp().to_string().c_str());
     });
 
-  while (!std::cin.eof())
-  {
-    // read data from stdin
-    std::string stdin;
-    std::cin >> stdin;
+    std::istream_iterator<char> it(std::cin);
+    std::istream_iterator<char> end;
+    std::string stdin(it, end);
+
     // pass data to IP4 fuzzer
     fuzz_ip4(network, stdin.data(), stdin.size());
     // pass data to network
@@ -50,7 +49,7 @@ void stdin_device(net::Inet4& network)
     // handle timers n shit
     Timers::timers_handler();
     //pause();
-  };
+    exit(0);
 }
 
 // send packet to Linux
