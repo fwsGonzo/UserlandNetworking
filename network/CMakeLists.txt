@@ -56,11 +56,18 @@ set(MOD_SOURCES
     IncludeOS/lib/mana/src/server.cpp
     IncludeOS/lib/mana/src/request.cpp
     IncludeOS/lib/mana/src/response.cpp
+    IncludeOS/lib/mana/src/attributes/cookie_jar.cpp
+    IncludeOS/lib/mana/src/middleware/butler.cpp
+    IncludeOS/lib/mana/src/middleware/cookie_parser.cpp
+    IncludeOS/lib/mana/src/middleware/director.cpp
+    IncludeOS/lib/mana/src/middleware/parsley.cpp
+    IncludeOS/lib/mana/src/components/dashboard/dashboard.cpp
   )
 
 add_library(network STATIC ${NET_SOURCES} ${OS_SOURCES} ${MOD_SOURCES})
 target_include_directories(network PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/IncludeOS/lib/mana/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/IncludeOS/lib/mana/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/IncludeOS/mod/rapidjson/include)
 
 add_library(http_parser STATIC "IncludeOS/mod/http-parser/http_parser.c")
 set_target_properties(http_parser PROPERTIES LINKER_LANGUAGE C)
