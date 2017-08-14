@@ -10,10 +10,13 @@ int64_t OS::micros_since_boot() noexcept
 
 
 #include <smp>
-int SMP::cpu_id() noexcept
-{
+int SMP::cpu_id() noexcept {
   return 0;
 }
+void SMP::global_lock() noexcept {}
+void SMP::global_unlock() noexcept {}
+void SMP::add_task(SMP::task_func, int) {}
+void SMP::signal(int) {}
 
 #include <service>
 void Service::ready() {}

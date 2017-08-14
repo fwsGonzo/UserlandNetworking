@@ -13,6 +13,7 @@ set(NET_SOURCES
   IncludeOS/src/net/tcp/connection.cpp
   IncludeOS/src/net/tcp/connection_states.cpp
   IncludeOS/src/net/tcp/write_queue.cpp
+  IncludeOS/src/net/tcp/read_buffer.cpp
   IncludeOS/src/net/tcp/rttm.cpp
   IncludeOS/src/net/tcp/listener.cpp
   IncludeOS/src/net/ip4/icmp4.cpp
@@ -36,11 +37,11 @@ set(NET_SOURCES
   IncludeOS/src/net/http/cookie.cpp
   IncludeOS/src/net/http/client_connection.cpp
   IncludeOS/src/net/http/client.cpp
-  IncludeOS/src/net/http/websocket.cpp
   IncludeOS/src/net/http/server_connection.cpp
   IncludeOS/src/net/http/server.cpp
   IncludeOS/src/net/http/response_writer.cpp
   #IncludeOS/src/net/http/secure_server.cpp
+  IncludeOS/src/net/ws/websocket.cpp
 )
 
 set(OS_SOURCES

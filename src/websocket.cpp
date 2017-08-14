@@ -1,12 +1,12 @@
 #include <net/inet4>
 #include <deque>
-#include <net/http/websocket.hpp>
-#include <net/http/ws_connector.hpp>
+#include <net/ws/websocket.hpp>
+#include <net/ws/connector.hpp>
 #include <http>
 
-static std::deque<http::WebSocket_ptr> websockets;
+static std::deque<net::WebSocket_ptr> websockets;
 
-static http::WebSocket_ptr& new_client(http::WebSocket_ptr socket)
+static net::WebSocket_ptr& new_client(net::WebSocket_ptr socket)
 {
   for (auto& client : websockets)
   if (client->is_alive() == false) {
@@ -41,8 +41,8 @@ void websocket_server(net::Inet<net::IP4>& inet, uint16_t port)
   static Server httpd(inet.tcp());
 
   // Set up server connector
-  static WS_server_connector ws_serve(
-    [] (WebSocket_ptr ws)
+  static net::WS_server_connector ws_serve(
+    [] (net::WebSocket_ptr ws)
     {
       if (ws == nullptr) return;
       auto& socket = new_client(std::move(ws));
@@ -50,15 +50,13 @@ void websocket_server(net::Inet<net::IP4>& inet, uint16_t port)
       if (socket->is_alive())
       {
         socket->on_read =
-        [] (const char* data, size_t len) {
-          (void) data;
-          (void) len;
-          printf("WebSocket on_read: %.*s\n", (int) len, data);
+        [] (net::WebSocket::Message_ptr msg) {
+          printf("WebSocket on_read: %.*s\n", (int) msg->size(), msg->data());
         };
 
         //socket->write("THIS IS A TEST CAN YOU HEAR THIS?");
         for (int i = 0; i < 1000; i++)
-            socket->write(BUFFER, BUFLEN, http::WebSocket::BINARY);
+            socket->write(BUFFER, BUFLEN, net::op_code::BINARY);
 
         //socket->close();
       }
