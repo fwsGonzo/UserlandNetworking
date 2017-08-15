@@ -2,3 +2,7 @@
 	path = network/IncludeOS
 	url = https://github.com/fwsGonzo/IncludeOS
   branch = dev
+[submodule "pirahna"]
+	path = pirahna/pirahna
+	url = git@github.com:fwsGonzo/pirahna.git
+  branch = master
