@@ -35,33 +35,15 @@ Disk_ptr disk;
 #include <isotime>
 #include <net/inet4>
 
-void acorn_start()
+void acorn_start(net::Inet4& stack)
 {
   disk = fs::shared_memdisk();
 
   // init the first legit partition/filesystem
   disk->init_fs(
-  [] (fs::error_t err, auto& fs)
+  [&stack] (fs::error_t err, auto& fs)
   {
       if (err) panic("Could not mount filesystem...\n");
-
-      /** IP STACK SETUP **/
-      // Bring up IPv4 stack on network interface 0
-      auto& stack = net::Inet4::ifconfig(5.0,
-        [] (bool timeout) {
-          printf("DHCP resolution %s\n", timeout ? "failed" : "succeeded");
-          if (timeout)
-          {
-            /**
-             * Default Manual config. Can only be done after timeout to work
-             * with DHCP offers going to unicast IP (e.g. in GCE)
-             **/
-            net::Inet4::stack().network_config({ 10,0,0,42 },     // IP
-                                               { 255,255,255,0 }, // Netmask
-                                               { 10,0,0,1 },      // Gateway
-                                               { 8,8,8,8 });      // DNS
-          }
-        });
 
       /** BUCKET SETUP */
 

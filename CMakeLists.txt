@@ -12,9 +12,12 @@ add_definitions(-DINCLUDEOS_SINGLE_THREADED)
 include_directories(network/IncludeOS/api)
 include_directories(network/IncludeOS/mod)
 include_directories(network/IncludeOS/mod/GSL)
+include_directories(pirahna/pirahna/include)
 
 add_subdirectory(network)
+add_subdirectory(pirahna)
 add_subdirectory(src)
 
 add_dependencies(testsuite network)
 add_dependencies(testsuite http_parser)
+add_dependencies(testsuite pirahna)

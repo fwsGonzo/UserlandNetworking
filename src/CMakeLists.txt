@@ -10,6 +10,7 @@ set(SOURCES
     http.cpp
     websocket.cpp
     acorn.cpp
+    pirahna.cpp
 
     fuzz_ip4.cpp
 
@@ -21,7 +22,7 @@ set(SOURCES
 
 add_executable(testsuite ${SOURCES})
 add_dependencies(testsuite network)
-target_link_libraries(testsuite network http_parser rt)
+target_link_libraries(testsuite network http_parser rt pirahna)
 target_include_directories(testsuite PUBLIC acorn)
 target_include_directories(testsuite PUBLIC ../libviface/include)
 target_include_directories(testsuite PUBLIC ../network/IncludeOS/examples/acorn/app)
