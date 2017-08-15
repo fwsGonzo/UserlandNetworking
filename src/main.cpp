@@ -28,9 +28,10 @@ int main(void)
     { 10,  0,  0,  1}, // GW
     {  8,  8,  8,  8}  // DNS
   );
-  // TAP device
+
+  // setup Linux TAP device first
   extern void tap_device(net::Inet4&);
-  //tap_device(*network);
+  tap_device(*network);
 
   // AFL (or other) on stdin
   extern void stdin_device(net::Inet4&);
@@ -42,14 +43,9 @@ int main(void)
   extern void tcp_test1(net::Inet4&);
   //tcp_test1(*network);
 
-  extern void acorn_start(net::Inet4&);
-  //acorn_start(*network);
-
-  extern void pirahna_start(net::Inet4&);
-  pirahna_start(*network);
-
   // begin event loop
   OS::event_loop();
+  printf("*** System shutting down!\n");
 }
 
 void outgoing(net::Packet_ptr packet)

@@ -3,7 +3,7 @@
 
 const Config& Config::get() noexcept {
   static std::string config =
-R"V0G0N("
+R"V0G0N(
 {
   "net" : [
     ["10.0.0.40", "255.255.255.0", "10.0.0.1"],
@@ -24,7 +24,7 @@ R"V0G0N("
     "client_limit" : 1000,
     "mgmt" : {
       "iface" : 0,
-      "port" : 80
+      "port" : 6667
     },
     "out" : {
       "iface" : 0,
@@ -35,10 +35,7 @@ R"V0G0N("
       "port" : 8888
     },
     "nodes" : [
-      "10.10.10.10",
-      "10.10.10.20",
-      "10.10.10.30",
-      "10.10.10.40"
+      "10.0.0.1"
     ]
   }
 }

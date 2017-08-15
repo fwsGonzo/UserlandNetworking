@@ -63,6 +63,7 @@ public:
 
   struct driver_hdr {
     uint32_t len;
+    uint16_t padding;
   }__attribute__((packed));
 
 private:

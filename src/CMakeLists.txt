@@ -9,6 +9,7 @@ set(SOURCES
     test_system.cpp
     http.cpp
     websocket.cpp
+    common_services.cpp
     acorn.cpp
     pirahna.cpp
 
