@@ -8,9 +8,44 @@ int64_t OS::micros_since_boot() noexcept
   return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
 }
 
+struct mallinfo
+{
+  // Total size of memory allocated with sbrk by malloc, in bytes.
+  int arena;
+  // Number of chunks not in use.
+  // (The memory allocator internally gets chunks of memory from the
+  // operating system, and then carves them up to satisfy individual
+  // malloc requests; see The GNU Allocator.)
+  int ordblks;
+  // Unused.
+  int smblks;
+  // Total number of chunks allocated with mmap.
+  int hblks;
+  // Total size of memory allocated with mmap, in bytes.
+  int hblkhd;
+  // Unused and always 0.
+  int usmblks;
+  // Unused.
+  int fsmblks;
+  // Total size of memory occupied by chunks handed out by malloc.
+  int uordblks;
+  // Total size of memory occupied by free (not in use) chunks.
+  int fordblks;
+  // Size of the top-most releasable chunk that normally borders the end of the heap (i.e., the high end of the virtual address space’s data segment).
+  int keepcost;
+};
+extern "C" struct mallinfo mallinfo(void);
+
 std::string OS::version_str_ = "v1.0";
-uintptr_t OS::heap_usage() noexcept {
+uintptr_t OS::heap_begin() noexcept {
   return 0;
+}
+uintptr_t OS::heap_end() noexcept {
+  return 0;
+}
+uintptr_t OS::heap_usage() noexcept {
+  auto info = mallinfo();
+  return info.arena + info.hblkhd;
 }
 
 #include <kernel/rtc.hpp>

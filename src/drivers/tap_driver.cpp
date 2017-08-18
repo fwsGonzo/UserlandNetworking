@@ -91,21 +91,24 @@ int TAP_driver::write(const void* buf, int len)
   return ::write(tun_fd, buf, len);
 }
 
-TAP_driver::TAP_driver()
+TAP_driver::TAP_driver(const char* devname)
 {
-  this->dev = "tap1";
+  this->dev = devname;
   this->tun_fd = alloc_tun();
 
   if (set_if_up() != 0) {
-      printf("ERROR when setting up if\n");
+      printf("[TAP] ERROR when setting up if\n");
+      std::abort();
   }
 
   if (set_if_route() != 0) {
-      printf("ERROR when setting route for if\n");
+      printf("[TAP] ERROR when setting route for if\n");
+      std::abort();
   }
 
   if (set_if_address() != 0) {
-      printf("ERROR when setting addr for if\n");
+      printf("[TAP] ERROR when setting addr for if\n");
+      std::abort();
   }
 }
 

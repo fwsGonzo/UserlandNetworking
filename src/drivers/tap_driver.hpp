@@ -11,7 +11,7 @@ struct TAP_driver
   int read (char *buf, int len);
   int write(const void* buf, int len);
 
-  TAP_driver();
+  TAP_driver(const char* dev);
   ~TAP_driver();
 
 private:

@@ -13,18 +13,9 @@ void tap_device(net::Inet4& network)
   auto& driver = (UserNet&) network.nic();
   driver.set_transmit_forward(packet_sent);
   // create TAP device and hook up packet receive to UserNet driver
-  TAP_driver tap0;
-  tap0.on_read({driver, &UserNet::write});
-  current_tap_device = &tap0;
-
-/*
-  using namespace std::chrono;
-  Timers::periodic(1s, 5s,
-    [&network] (int) {
-      printf("Active timers: %zu\n", Timers::active());
-      printf("%s\n", network.tcp().to_string().c_str());
-    });
-*/
+  TAP_driver tapdrv("tap1");
+  tapdrv.on_read({driver, &UserNet::write});
+  current_tap_device = &tapdrv;
 
   // load balancers
   extern void pirahna_start(net::Inet4&);
@@ -40,7 +31,7 @@ void tap_device(net::Inet4& network)
 
   while (true) {
     Timers::timers_handler();
-    tap0.wait();
+    tapdrv.wait();
   }
 }
 
