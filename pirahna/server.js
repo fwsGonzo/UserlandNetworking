@@ -26,3 +26,8 @@ function handleRequest(request, response){
 }
 
 http.createServer(handleRequest).listen(PORT, '10.0.0.1');
+
+http.createServer(handleRequest).listen(6001, '10.0.0.1');
+http.createServer(handleRequest).listen(6002, '10.0.0.1');
+http.createServer(handleRequest).listen(6003, '10.0.0.1');
+http.createServer(handleRequest).listen(6004, '10.0.0.1');

@@ -6,3 +6,6 @@
 	path = pirahna/pirahna
 	url = git@github.com:fwsGonzo/pirahna.git
   branch = master
+[submodule "pirahna/microLB"]
+	path = pirahna/microLB
+	url = git@github.com:fwsGonzo/microLB.git

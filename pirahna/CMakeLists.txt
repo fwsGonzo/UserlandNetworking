@@ -7,6 +7,8 @@ set(LB_SOURCES
   pirahna/src/link.cpp
   pirahna/src/radio.cpp
   pirahna/src/uplink.cpp
+
+  microLB/balancer.cpp
 )
 
 add_library(pirahna STATIC ${LB_SOURCES})

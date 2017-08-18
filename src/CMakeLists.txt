@@ -12,6 +12,7 @@ set(SOURCES
     common_services.cpp
     acorn.cpp
     pirahna.cpp
+    microlb.cpp
 
     fuzz_ip4.cpp
 

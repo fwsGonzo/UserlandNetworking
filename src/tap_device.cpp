@@ -17,16 +17,20 @@ void tap_device(net::Inet4& network)
   tap0.on_read({driver, &UserNet::write});
   current_tap_device = &tap0;
 
+/*
   using namespace std::chrono;
   Timers::periodic(1s, 5s,
     [&network] (int) {
       printf("Active timers: %zu\n", Timers::active());
       printf("%s\n", network.tcp().to_string().c_str());
     });
+*/
 
-  // start service
+  // load balancers
   extern void pirahna_start(net::Inet4&);
-  pirahna_start(network);
+  //pirahna_start(network);
+  extern void balancer_start(net::Inet4&);
+  balancer_start(network);
 
   extern void acorn_start(net::Inet4&);
   //acorn_start(network);
