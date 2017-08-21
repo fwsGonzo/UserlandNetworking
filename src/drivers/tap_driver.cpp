@@ -33,17 +33,17 @@ static int run_cmd(const char *cmd, ...)
 
 int TAP_driver::set_if_route(const char *cidr)
 {
-  return run_cmd("ip route add dev %s %s", dev.c_str(), cidr);
+  return run_cmd("ip route add dev %s %s", dev, cidr);
 }
 
 int TAP_driver::set_if_address(const char* ip)
 {
-  return run_cmd("ip address add dev %s local %s", dev.c_str(), ip);
+  return run_cmd("ip address add dev %s local %s", dev, ip);
 }
 
 int TAP_driver::set_if_up()
 {
-  return run_cmd("ip link set dev %s up", dev.c_str());
+  return run_cmd("ip link set dev %s up", dev);
 }
 
 /*
@@ -51,7 +51,7 @@ int TAP_driver::set_if_up()
  */
 int TAP_driver::alloc_tun()
 {
-  assert(!this->dev.empty());
+  assert(this->dev != nullptr);
   struct ifreq ifr;
   int fd, err;
 
@@ -69,7 +69,7 @@ int TAP_driver::alloc_tun()
    */
   memset(&ifr, 0, sizeof(ifr));
   ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-  strncpy(ifr.ifr_name, dev.c_str(), IFNAMSIZ);
+  strncpy(ifr.ifr_name, dev, IFNAMSIZ);
 
   if ((err = ioctl(fd, (int) TUNSETIFF, (void *) &ifr)) < 0) {
       perror("ERR: Could not ioctl tun");
@@ -77,7 +77,7 @@ int TAP_driver::alloc_tun()
       return err;
   }
 
-  dev = std::string(ifr.ifr_name);
+  dev = strdup(ifr.ifr_name);
   return fd;
 }
 

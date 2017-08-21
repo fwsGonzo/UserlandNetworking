@@ -22,5 +22,5 @@ private:
 
   int tun_fd;
   on_read_func o_read;
-  std::string  dev;
+  const char* dev = nullptr;
 };
